@@ -135,8 +135,15 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		for entry in newPosts {
 			if !decodedPosts.contains(entry) {
 				changed += 1
-			} else {
-				entry.read = (decodedPosts.filter{$0 == entry}.first?.read)!
+			}
+		}
+		
+		//Carry over read indicators
+		for entry in newPosts {
+			if (decodedPosts.first {$0.title == entry.title} != nil) {
+				//Match found
+				let match = decodedPosts.first {$0.title == entry.title}
+				newPosts[newPosts.index(of: entry)!].read = (decodedPosts.first {$0.title == entry.title}?.read)!
 			}
 		}
 		
