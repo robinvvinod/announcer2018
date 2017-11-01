@@ -19,9 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Override point for customization after application launch.
 		
 		//UserDefaults registration
+		// Array of Posts for offline use as well as checks
 		let ud = UserDefaults.standard
-		ud.register(defaults: ["posts" : [Post]()]) // Array of Posts for offline use as well as checks
-		ud.register(defaults: ["notification": [Bool]()]) // For toggling read notifications on or off
+		ud.register(defaults: ["posts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
+		ud.synchronize()
 		
 		return true
 	}

@@ -8,6 +8,7 @@
 
 import UIKit
 import SystemConfiguration
+
 import FeedKit
 
 //RSS or Atom Feed URL: Change this link to change RSS feed location
@@ -18,16 +19,18 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	
 	//Variables
 	var feed: AtomFeed?
-	let parser = FeedParser(URL: feedURL)!
+	let parser = FeedParser(URL: feedURL)
 	
-	var filtered = [AtomFeedEntry]() //For searchbar
+	var filtered = [Post]() //For searchbar
 	var posts = [Post]() //Load into this when fetching posts or retrieving offline data
-	var selectedArray: [AtomFeedEntry]?
+	var selectedArray: [Post]?
 	
 	var searchText = ""
 	
 	var titleData = String()
 	var contentData = String()
+	
+	let ud = UserDefaults.standard
 	
 	//Objects
 	@IBOutlet weak var FeedTableView: UITableView!
@@ -93,12 +96,11 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	func fetchFromFeed() {
 		if connectedToNetwork() {
 			//Is connected - fetch Atom Feed
-			parser.parseAsync { [weak self] (result) in
+			parser?.parseAsync { [weak self] (result) in
 				self?.feed = result.atomFeed
 				
 				//TBD: Check for new posts and edit notifications
-				
-				//TBD: Write to User Defaults to store posts [25 post limit bc of Blogger]
+				self?.checkFeed(from: (self?.feed?.entries)!)
 				
 				// Then back to the Main thread to update the UI.
 				DispatchQueue.main.async {
@@ -108,8 +110,52 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 			}
 		} else {
 			//Notify the user - No connection!
+			let alert = UIAlertController.init(title: "Error", message: "No connection!", preferredStyle: UIAlertControllerStyle.alert)
+			alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.cancel, handler: nil))
+			self.present(alert, animated: true, completion: nil)
+			
 			//Load saved offline posts (If possible)
+			let data = ud.object(forKey: "posts") as! Data
+			let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+			posts = decodedPosts
 		}
+	}
+	
+	//New Posts Handler
+	func checkFeed(from: [AtomFeedEntry]) {
+		//Get current Posts
+		let decoded = ud.object(forKey: "posts") as! Data
+		let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: decoded) as! [Post]
+		
+		//Get new Posts
+		let newPosts = convertFromEntries(feed: (feed?.entries)!)
+		
+		//Find number of new posts
+		var changed = 0
+		for entry in newPosts {
+			if !decodedPosts.contains(entry) {
+				changed += 1
+			} else {
+				entry.read = (decodedPosts.filter{$0 == entry}.first?.read)!
+			}
+		}
+		
+		//Write to User Defaults to store posts [25 post limit bc of Blogger]
+		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: newPosts)
+		ud.set(encodedData, forKey: "posts")
+		ud.synchronize()
+
+		//Push to posts array
+		self.posts = newPosts
+	}
+	
+	//Conversion from AtomFeedEntry -> Post
+	func convertFromEntries(feed: [AtomFeedEntry]) -> [Post] {
+		var posts = [Post]()
+		for entry in feed {
+			posts.append(Post.init(title: entry.title!, content: (entry.content?.value)!, published: entry.published!, read: false))
+		}
+		return posts
 	}
 	
 	//Pull from Feed
@@ -128,7 +174,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	}
 	
 	func filter(forSearchText searchText: String) {
-		filtered = (feed?.entries?.filter {($0.title?.contains(searchText))!})!
+		filtered = posts.filter {$0.title.contains(searchText)}
 		FeedTableView.reloadData()
 	}
 	
@@ -156,7 +202,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		if searchController.isActive || searchController.searchBar.text != "" {
 			selectedArray = filtered
 		} else {
-			selectedArray = feed?.entries //Change to posts after implementing UserDefaults
+			selectedArray = posts
 		}
 		return selectedArray?.count ?? 0
 	}
@@ -169,18 +215,25 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		if searchController.isActive || searchController.searchBar.text != "" {
 			selectedArray = filtered
 		} else {
-			selectedArray = feed?.entries //Change to posts after implementing UserDefaults
+			selectedArray = posts
 		}
 		
 		//Configure the cell...
 		//Remove HTML tags while in main vc for the sake of cleanliness
-		let data = selectedArray?[indexPath.row].content?.value
+		let data = selectedArray?[indexPath.row].content
 		let str = data?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil).replacingOccurrences(of: "&nbsp;", with: " ")
 		
 		//Set labels
 		cell.titleLabel.text = selectedArray?[indexPath.row].title
 		cell.descriptionLabel.text = str
 		cell.dateLabel.text = dateAgo(date: (selectedArray?[indexPath.row].published)!)
+		
+		//Check if read
+		if selectedArray?[indexPath.row].read == true {
+			cell.readIndicator.alpha = 0
+		} else {
+			cell.readIndicator.alpha = 1
+		}
 		
 		return cell
 	}
@@ -189,10 +242,29 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		if searchController.isActive || searchController.searchBar.text != "" {
 			selectedArray = filtered
 		} else {
-			selectedArray = feed?.entries //Change to posts after implementing UserDefaults
+			selectedArray = posts
 		}
 		titleData = (selectedArray?[indexPath.row].title)!
-		contentData = (selectedArray?[indexPath.row].content?.value)!
+		contentData = (selectedArray?[indexPath.row].content)!
+		
+		//Record as read
+		//Get current Posts
+		let data = ud.object(forKey: "posts") as! Data
+		var decodedData = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+		
+		//Record as read
+		let match = decodedData.first{$0.title == titleData}
+		decodedData[decodedData.index(of: match!)!].read = true
+		
+		//Push back to User Defaults
+		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: decodedData)
+		ud.set(encodedData, forKey: "posts")
+		ud.synchronize()
+		
+		//refresh table view
+		posts = decodedData
+		FeedTableView.reloadData()
+		
 		performSegue(withIdentifier: "viewPost", sender: nil)
 	}
 	
