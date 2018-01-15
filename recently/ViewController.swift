@@ -17,6 +17,21 @@ let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
 
 class ViewController: UIViewController, UISearchControllerDelegate, UISearchResultsUpdating, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
 	
+	/*
+	
+	WORKFLOW EXPLANATION
+	0. On first initialization, set key "posts" to an array of Post
+	1. View is set up
+	2. Internet connection is checked
+	3. If internet connection is off, use offline stored posts by directly loading the "posts" data
+	4. If internet connection is online, check online posts and update "posts" data
+	5. Wait for user to tap on a post
+	6. Loads post by transferring title and content data and toggles read notification
+	7. Wait for user to finish reading and tap back
+	8. Reloads TableView with the new read notification
+
+	*/
+	
 	//Variables
 	var feed: AtomFeed?
 	let parser = FeedParser(URL: feedURL)
@@ -141,8 +156,6 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//Carry over read indicators
 		for entry in newPosts {
 			if (decodedPosts.first {$0.title == entry.title} != nil) {
-				//Match found
-				let match = decodedPosts.first {$0.title == entry.title}
 				newPosts[newPosts.index(of: entry)!].read = (decodedPosts.first {$0.title == entry.title}?.read)!
 			}
 		}
@@ -150,7 +163,6 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//Write to User Defaults to store posts [25 post limit bc of Blogger]
 		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: newPosts)
 		ud.set(encodedData, forKey: "posts")
-		ud.synchronize()
 
 		//Push to posts array
 		self.posts = newPosts
@@ -266,7 +278,6 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//Push back to User Defaults
 		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: decodedData)
 		ud.set(encodedData, forKey: "posts")
-		ud.synchronize()
 		
 		//refresh table view
 		posts = decodedData

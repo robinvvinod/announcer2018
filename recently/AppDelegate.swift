@@ -8,6 +8,7 @@
 
 import UIKit
 import FeedKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,13 +19,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
 		
-		//UserDefaults registration
+		// UserDefaults registration for key "posts"
 		// Array of Posts for offline use as well as checks
 		let ud = UserDefaults.standard
 		ud.register(defaults: ["posts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
-		ud.synchronize()
-		
+		ud.register(defaults: ["notificationTime": Date()])
+		ud.register(defaults: ["notifEnabled": false])
 		return true
+		
+		//Ask for notification authorization
+		let center = UNUserNotificationCenter.current()
+		let options: UNAuthorizationOptions = [.alert, .sound]
+		center.requestAuthorization(options: options) {
+			(granted, error) in
+			if !granted {
+				print("Something went wrong")
+			}
+		}
 	}
 
 	func applicationWillResignActive(_ application: UIApplication) {
