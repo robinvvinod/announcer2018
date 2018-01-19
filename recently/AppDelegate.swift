@@ -23,9 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Array of Posts for offline use as well as checks
 		let ud = UserDefaults.standard
 		ud.register(defaults: ["posts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
-		ud.register(defaults: ["notificationTime": Date()])
-		ud.register(defaults: ["notifEnabled": false])
-		return true
+		ud.register(defaults: ["accurateNotifs": false])
+		
+		// Fetch data once an hour.
+		UIApplication.shared.setMinimumBackgroundFetchInterval(300)
 		
 		//Ask for notification authorization
 		let center = UNUserNotificationCenter.current()
@@ -36,6 +37,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 				print("Something went wrong")
 			}
 		}
+		
+		return true
+	}
+	
+	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+		
 	}
 
 	func applicationWillResignActive(_ application: UIApplication) {

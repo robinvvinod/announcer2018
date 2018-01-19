@@ -178,56 +178,16 @@
         <!--Settings-->
         <scene sceneID="5j9-ji-Jx2">
             <objects>
-                <tapGestureRecognizer id="Jbg-qa-COP">
-                    <connections>
-                        <segue destination="csr-O0-kLY" kind="show" id="Y0R-rr-ulU"/>
-                    </connections>
-                </tapGestureRecognizer>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="XSe-7o-fJ3" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController id="Z4L-TD-tGM" customClass="SettingsTableViewController" customModule="recently" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="QQF-h5-Fk5">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection headerTitle="Battery Saving" footerTitle="Enabling this will increase the number of times the app checks for new information but will deplete battery at a faster rate" id="BEF-b0-GO9">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="gde-VG-pZ9">
-                                        <rect key="frame" x="0.0" y="55.5" width="320" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="gde-VG-pZ9" id="3d1-zb-zmQ">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Bjx-sy-xEP">
-                                                    <rect key="frame" x="256" y="6" width="51" height="31"/>
-                                                    <connections>
-                                                        <action selector="notificationToggled:" destination="Z4L-TD-tGM" eventType="valueChanged" id="vKb-hJ-tET"/>
-                                                    </connections>
-                                                </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Accurate Notifications" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qS8-f7-vQc">
-                                                    <rect key="frame" x="16" y="11" width="170" height="22"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="bottom" secondItem="Bjx-sy-xEP" secondAttribute="bottom" constant="6" id="1Df-sC-0VL"/>
-                                                <constraint firstItem="qS8-f7-vQc" firstAttribute="leading" secondItem="3d1-zb-zmQ" secondAttribute="leadingMargin" id="T7t-nG-LhE"/>
-                                                <constraint firstItem="Bjx-sy-xEP" firstAttribute="top" secondItem="3d1-zb-zmQ" secondAttribute="top" constant="6" id="gYh-ey-F2D"/>
-                                                <constraint firstItem="qS8-f7-vQc" firstAttribute="top" secondItem="3d1-zb-zmQ" secondAttribute="topMargin" id="jKI-f0-8y8"/>
-                                                <constraint firstAttribute="trailing" secondItem="Bjx-sy-xEP" secondAttribute="trailing" constant="15" id="kJW-Pg-DJf"/>
-                                                <constraint firstAttribute="bottomMargin" secondItem="qS8-f7-vQc" secondAttribute="bottom" id="xX8-V9-gi7"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
                             <tableViewSection headerTitle="Filtering" footerTitle="Setting a keyword will stop all posts that do not contain it from triggering a notification" id="hai-Z9-Uoo">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="O4g-tN-Dcj">
-                                        <rect key="frame" x="0.0" y="207" width="320" height="44"/>
+                                        <rect key="frame" x="0.0" y="56" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="O4g-tN-Dcj" id="awM-XJ-FAN">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
@@ -264,6 +224,12 @@
                         <outlet property="SettingsTableView" destination="QQF-h5-Fk5" id="VNA-NW-hSq"/>
                     </connections>
                 </tableViewController>
+                <tapGestureRecognizer id="Jbg-qa-COP">
+                    <connections>
+                        <segue destination="csr-O0-kLY" kind="show" id="Y0R-rr-ulU"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XSe-7o-fJ3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1695" y="909.50704225352115"/>
         </scene>
