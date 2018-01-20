@@ -11,9 +11,7 @@ import SystemConfiguration
 
 import FeedKit
 
-//RSS or Atom Feed URL: Change this link to change RSS feed location
-let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
-
+//Edit the URL in Network Fetch to change RSS Feed location
 
 class ViewController: UIViewController, UISearchControllerDelegate, UISearchResultsUpdating, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
 	
@@ -145,18 +143,12 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//Get new Posts
 		let newPosts = convertFromEntries(feed: (feed?.entries)!)
 		
-		//Find number of new posts
-		var changed = 0
-		for entry in newPosts {
-			if !decodedPosts.contains(entry) {
-				changed += 1
-			}
-		}
-		
 		//Carry over read indicators
-		for entry in newPosts {
-			if (decodedPosts.first {$0.title == entry.title} != nil) {
-				newPosts[newPosts.index(of: entry)!].read = (decodedPosts.first {$0.title == entry.title}?.read)!
+		for newEntry in newPosts {
+			for oldEntry in decodedPosts {
+				if newEntry == oldEntry {
+					newPosts[newPosts.index(of: newEntry)!].read = true
+				}
 			}
 		}
 		
@@ -172,7 +164,12 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	func convertFromEntries(feed: [AtomFeedEntry]) -> [Post] {
 		var posts = [Post]()
 		for entry in feed {
-			posts.append(Post.init(title: entry.title!, content: (entry.content?.value)!, published: entry.published!, read: false))
+			posts.append(Post.init(
+				title: entry.title!,
+				content: (entry.content?.value)!,
+				published: entry.published!,
+				read: false)
+			)
 		}
 		return posts
 	}

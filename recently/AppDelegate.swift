@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ud.register(defaults: ["posts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		ud.register(defaults: ["accurateNotifs": false])
 		
-		// Fetch data once an hour.
+		// Fetch data every five minutes.
 		UIApplication.shared.setMinimumBackgroundFetchInterval(300)
 		
 		//Ask for notification authorization
@@ -42,7 +42,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		
+		let notifications = fetchFromBlog()
+		for notification in notifications {
+			let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+			let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
+			let center = UNUserNotificationCenter.current()
+			center.add(request, withCompletionHandler: nil)
+		}
 	}
 
 	func applicationWillResignActive(_ application: UIApplication) {

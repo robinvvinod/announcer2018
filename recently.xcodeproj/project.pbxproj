@@ -73,10 +73,10 @@
 			children = (
 				1D8CD5051FA87E600013FBCD /* AppDelegate.swift */,
 				1D8CD5071FA87E600013FBCD /* ViewController.swift */,
+				1D6FACD42011766F00BD27DF /* Network Fetch.swift */,
 				1DC26D2A1FA9AE3A00200153 /* PostViewController.swift */,
 				1D5C4C23200B9DB7002C075B /* FilterTableViewController.swift */,
 				1D8CD5191FA8C0340013FBCD /* FeedTableViewCell.swift */,
-				1D6FACD42011766F00BD27DF /* Network Fetch.swift */,
 				1DC26D2E1FA9BF9F00200153 /* Post.swift */,
 				1D8CD5091FA87E600013FBCD /* Main.storyboard */,
 				1D8CD50C1FA87E600013FBCD /* Assets.xcassets */,
