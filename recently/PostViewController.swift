@@ -20,6 +20,11 @@ class PostViewController: UIViewController {
 	
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		//Edit content's images (if there's any)
+		print(contentText)
+		print("")
+		
 		titleLabel.title = titleText
 		contentView.attributedText = contentText.html2AttributedString
         // Do any additional setup after loading the view.
@@ -44,6 +49,7 @@ class PostViewController: UIViewController {
 }
 
 //Extension to read HTML text
+
 extension String {
 	var html2AttributedString: NSAttributedString? {
 		do {
@@ -58,5 +64,11 @@ extension String {
 	}
 	var html2String: String {
 		return html2AttributedString?.string ?? ""
+	}
+	
+	mutating func imageCorrection() {
+		while self.range(of: "(?<=width=\")[^\" height]+", options: .regularExpression) != nil {
+			
+		}
 	}
 }

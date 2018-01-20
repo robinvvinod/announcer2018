@@ -43,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		let notifications = fetchFromBlog()
+		
 		for notification in notifications {
 			let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
 			let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)

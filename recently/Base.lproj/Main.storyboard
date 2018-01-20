@@ -105,13 +105,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" id="n4N-YX-bD1">
-                        <barButtonItem key="rightBarButtonItem" image="settings 19-37-15-571" id="59x-xO-AY8">
-                            <connections>
-                                <segue destination="Z4L-TD-tGM" kind="show" id="QzS-94-Qzn"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="n4N-YX-bD1"/>
                     <connections>
                         <outlet property="FeedTableView" destination="3ME-1o-6RK" id="YvP-hW-6uy"/>
                         <segue destination="GqF-dM-BKC" kind="show" identifier="viewPost" id="hQ7-6k-ZYn"/>
@@ -175,106 +169,9 @@
             </objects>
             <point key="canvasLocation" x="227" y="115"/>
         </scene>
-        <!--Settings-->
-        <scene sceneID="5j9-ji-Jx2">
-            <objects>
-                <tableViewController id="Z4L-TD-tGM" customClass="SettingsTableViewController" customModule="recently" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="QQF-h5-Fk5">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
-                        <sections>
-                            <tableViewSection headerTitle="Filtering" footerTitle="Setting a keyword will stop all posts that do not contain it from triggering a notification" id="hai-Z9-Uoo">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="O4g-tN-Dcj">
-                                        <rect key="frame" x="0.0" y="56" width="320" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="O4g-tN-Dcj" id="awM-XJ-FAN">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Keywords" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nQ2-38-5Wc">
-                                                    <rect key="frame" x="16" y="11" width="75" height="22"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="nQ2-38-5Wc" firstAttribute="bottom" secondItem="awM-XJ-FAN" secondAttribute="bottomMargin" id="FVh-u6-RUE"/>
-                                                <constraint firstItem="nQ2-38-5Wc" firstAttribute="leading" secondItem="awM-XJ-FAN" secondAttribute="leadingMargin" id="NJf-5Z-REU"/>
-                                                <constraint firstItem="nQ2-38-5Wc" firstAttribute="top" secondItem="awM-XJ-FAN" secondAttribute="topMargin" id="kv8-nA-y6d"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                        <gestureRecognizers/>
-                                        <connections>
-                                            <outletCollection property="gestureRecognizers" destination="Jbg-qa-COP" appends="YES" id="Xgf-w5-wwW"/>
-                                        </connections>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
-                        </sections>
-                        <connections>
-                            <outlet property="dataSource" destination="Z4L-TD-tGM" id="PnM-DW-lpM"/>
-                            <outlet property="delegate" destination="Z4L-TD-tGM" id="kQG-Yv-4pz"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" title="Settings" id="CRM-1i-HWo"/>
-                    <connections>
-                        <outlet property="SettingsTableView" destination="QQF-h5-Fk5" id="VNA-NW-hSq"/>
-                    </connections>
-                </tableViewController>
-                <tapGestureRecognizer id="Jbg-qa-COP">
-                    <connections>
-                        <segue destination="csr-O0-kLY" kind="show" id="Y0R-rr-ulU"/>
-                    </connections>
-                </tapGestureRecognizer>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="XSe-7o-fJ3" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1695" y="909.50704225352115"/>
-        </scene>
-        <!--Keywords-->
-        <scene sceneID="fTv-07-086">
-            <objects>
-                <tableViewController id="csr-O0-kLY" customClass="FilterTableViewController" customModule="recently" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="vej-Hv-AgU">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="filterCell" textLabel="sVU-cq-fGf" style="IBUITableViewCellStyleDefault" id="ONy-kz-t8j">
-                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ONy-kz-t8j" id="QvS-jZ-Quw">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="sVU-cq-fGf">
-                                            <rect key="frame" x="16" y="0.0" width="288" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <nil key="textColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                    </subviews>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="csr-O0-kLY" id="rHS-hU-y0y"/>
-                            <outlet property="delegate" destination="csr-O0-kLY" id="1s2-BR-tgb"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" title="Keywords" id="Lyx-Sy-bgr"/>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="RNv-ua-SV7" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2415" y="910"/>
-        </scene>
     </scenes>
     <resources>
         <image name="ChevronRight" width="12" height="12"/>
         <image name="Indicator" width="12" height="12"/>
-        <image name="settings 19-37-15-571" width="21" height="21"/>
     </resources>
 </document>

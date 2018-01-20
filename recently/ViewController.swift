@@ -146,8 +146,8 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//Carry over read indicators
 		for newEntry in newPosts {
 			for oldEntry in decodedPosts {
-				if newEntry == oldEntry {
-					newPosts[newPosts.index(of: newEntry)!].read = true
+				if newEntry.isEquals(compareTo: oldEntry) {
+					newPosts[newPosts.index(of: newEntry)!].read = decodedPosts[decodedPosts.index(of: oldEntry)!].read
 				}
 			}
 		}

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D5C4C24200B9DB8002C075B /* FilterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C4C23200B9DB7002C075B /* FilterTableViewController.swift */; };
 		1D6FACD52011766F00BD27DF /* Network Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6FACD42011766F00BD27DF /* Network Fetch.swift */; };
 		1D756A9D37CD7C9F933F2A2C /* Pods_recently.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4EA6F202DF27C6A3838C755 /* Pods_recently.framework */; };
 		1D8CD5061FA87E600013FBCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8CD5051FA87E600013FBCD /* AppDelegate.swift */; };
@@ -21,7 +20,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1D5C4C23200B9DB7002C075B /* FilterTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterTableViewController.swift; sourceTree = "<group>"; };
 		1D6FACD42011766F00BD27DF /* Network Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network Fetch.swift"; sourceTree = "<group>"; };
 		1D8CD5021FA87E600013FBCD /* recently.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = recently.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D8CD5051FA87E600013FBCD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -72,10 +70,9 @@
 			isa = PBXGroup;
 			children = (
 				1D8CD5051FA87E600013FBCD /* AppDelegate.swift */,
-				1D8CD5071FA87E600013FBCD /* ViewController.swift */,
 				1D6FACD42011766F00BD27DF /* Network Fetch.swift */,
+				1D8CD5071FA87E600013FBCD /* ViewController.swift */,
 				1DC26D2A1FA9AE3A00200153 /* PostViewController.swift */,
-				1D5C4C23200B9DB7002C075B /* FilterTableViewController.swift */,
 				1D8CD5191FA8C0340013FBCD /* FeedTableViewCell.swift */,
 				1DC26D2E1FA9BF9F00200153 /* Post.swift */,
 				1D8CD5091FA87E600013FBCD /* Main.storyboard */,
@@ -205,10 +202,12 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-recently/Pods-recently-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/FeedKit/FeedKit.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftSoup/SwiftSoup.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FeedKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftSoup.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -238,7 +237,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1DC26D2B1FA9AE3B00200153 /* PostViewController.swift in Sources */,
-				1D5C4C24200B9DB8002C075B /* FilterTableViewController.swift in Sources */,
 				1D6FACD52011766F00BD27DF /* Network Fetch.swift in Sources */,
 				1D8CD5081FA87E600013FBCD /* ViewController.swift in Sources */,
 				1D8CD51A1FA8C0340013FBCD /* FeedTableViewCell.swift in Sources */,
