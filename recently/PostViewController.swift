@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DTCoreText
 
 class PostViewController: UIViewController {
 
@@ -16,17 +17,15 @@ class PostViewController: UIViewController {
 	
 	//Objects
 	@IBOutlet weak var titleLabel: UINavigationItem!
-	@IBOutlet weak var contentView: UITextView!
+	@IBOutlet weak var contentView: DTAttributedTextContentView!
 	
     override func viewDidLoad() {
         super.viewDidLoad()
 		
 		//Edit content's images (if there's any)
-		print(contentText)
-		print("")
 		
 		titleLabel.title = titleText
-		contentView.attributedText = contentText.html2AttributedString
+		contentView.attributedString = contentText.html2AttributedString
         // Do any additional setup after loading the view.
     }
 
@@ -64,11 +63,5 @@ extension String {
 	}
 	var html2String: String {
 		return html2AttributedString?.string ?? ""
-	}
-	
-	mutating func imageCorrection() {
-		while self.range(of: "(?<=width=\")[^\" height]+", options: .regularExpression) != nil {
-			
-		}
 	}
 }
