@@ -7,6 +7,5 @@ target 'recently' do
 
   # Pods for recently
   pod 'FeedKit', '~> 6.0'
-  pod 'DTCoreText'
 
 end

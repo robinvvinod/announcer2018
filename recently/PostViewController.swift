@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import DTCoreText
 
 class PostViewController: UIViewController {
 
@@ -17,7 +16,7 @@ class PostViewController: UIViewController {
 	
 	//Objects
 	@IBOutlet weak var titleLabel: UINavigationItem!
-	@IBOutlet weak var contentView: DTAttributedTextContentView!
+	@IBOutlet weak var contentView: UITextView!
 	
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +24,9 @@ class PostViewController: UIViewController {
 		//Edit content's images (if there's any)
 		
 		titleLabel.title = titleText
-		contentView.attributedString = contentText.html2AttributedString
+		let attrText = contentText.html2AttributedString
+		attrText?.addAttribute(.font, value: UIFont.init(name: "Avenir Next", size: 14.0), range: NSRange.init(location: 0, length: (attrText?.length)!))
+		contentView.attributedText = attrText
         // Do any additional setup after loading the view.
     }
 
@@ -50,9 +51,9 @@ class PostViewController: UIViewController {
 //Extension to read HTML text
 
 extension String {
-	var html2AttributedString: NSAttributedString? {
+	var html2AttributedString: NSMutableAttributedString? {
 		do {
-			return try NSAttributedString(data: Data(utf8),
+			return try NSMutableAttributedString(data: Data(utf8),
 			                              options: [.documentType: NSAttributedString.DocumentType.html,
 			                                        .characterEncoding: String.Encoding.utf8.rawValue],
 			                              documentAttributes: nil)
