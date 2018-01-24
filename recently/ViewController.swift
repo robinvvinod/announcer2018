@@ -257,6 +257,20 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		
 	}
 	
+	//Header Height Handler
+	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+		if section == 0 {
+			//Make up for footer in first section
+			return 33
+		}
+		return 25
+	}
+	
+	//Footer Height Handler
+	func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+		return 5
+	}
+	
 	//Tableview Header Handler
 	func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		if section == 0 {
@@ -377,64 +391,16 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	}
 	
 	//Swipe Handlers for Tableview
-	func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-		let swipeConfig = UISwipeActionsConfiguration(actions: [toggleRead(forRowAtIndexPath: indexPath)])
-		return swipeConfig
-	}
+	
+	//Swipe <-
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		
 		let swipeConfig = UISwipeActionsConfiguration(actions: [pinPost(forRowAtIndexPath: indexPath)])
 		return swipeConfig
 	}
 	
 	//Swipe Function Handlers
-	//Mark as Read Handlers
-	func toggleRead(forRowAtIndexPath indexPath: IndexPath) -> UIContextualAction {
-		//Initialisations
-		
-		//Create main array
-		var allPosts: [[Post]]
-		
-		//Check for prescence of pins
-		if pinned.count == 0 {
-			allPosts = [posts]
-		} else {
-			allPosts = [pinned,posts]
-		}
-		
-		//Edit title according to context
-		var title = String()
-		
-		if allPosts[indexPath.section][indexPath.row].read == false {
-			title = "Mark as Read"
-		} else {
-			title = "Mark as Unread"
-		}
-		
-		//Action Builder
-		let action = UIContextualAction(style: .normal, title: title)
-		{ (contextAction: UIContextualAction, sourceView: UIView, completionHandler: (Bool) -> Void) in
-			
-			//Toggle read notif according to context
-			allPosts[indexPath.section][indexPath.row].read = !allPosts[indexPath.section][indexPath.row].read
-			
-			//Push to local volatile memory
-			if self.pinned.count != 0 {
-				 self.pinned = allPosts.first!
-			}
-			 self.posts = allPosts.last!
-			
-			//Push back to User Defaults
-			self.savePosts()
-			
-			//Reload data
-			self.FeedTableView.reloadRows(at: [indexPath], with: .none)
-			
-			//Complete
-			completionHandler(true)
-		}
-		action.backgroundColor = allPosts[indexPath.section][indexPath.row].read ? UIColor.gray : UIColor.darkGray
-		return action
-	}
+	//Pin Handlers
 	func pinPost(forRowAtIndexPath indexPath: IndexPath) -> UIContextualAction {
 		//Initialisations
 		
