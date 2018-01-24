@@ -19,11 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
 		
-		// UserDefaults registration for key "posts"
-		// Array of Posts for offline use as well as checks
 		let ud = UserDefaults.standard
+		
+		// UserDefaults registration for key "posts" for offline use as well as checks
 		ud.register(defaults: ["posts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
-		ud.register(defaults: ["accurateNotifs": false])
+		
+		// UserDefaults registration for key "pins" for retaining data
+		ud.register(defaults: ["pinnedposts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		
 		// Fetch data every five minutes.
 		UIApplication.shared.setMinimumBackgroundFetchInterval(300)

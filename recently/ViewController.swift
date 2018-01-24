@@ -15,40 +15,29 @@ import FeedKit
 
 class ViewController: UIViewController, UISearchControllerDelegate, UISearchResultsUpdating, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
 	
-	/*
+	//MARK: - Variables
 	
-	WORKFLOW EXPLANATION
-	0. On first initialization, set key "posts" to an array of Post
-	1. View is set up
-	2. Internet connection is checked
-	3. If internet connection is off, use offline stored posts by directly loading the "posts" data
-	4. If internet connection is online, check online posts and update "posts" data
-	5. Wait for user to tap on a post
-	6. Loads post by transferring title and content data and toggles read notification
-	7. Wait for user to finish reading and tap back
-	8. Reloads TableView with the new read notification
-
-	*/
-	
-	//Variables
+	// FeedKit initialisation
 	var feed: AtomFeed?
 	let parser = FeedParser(URL: feedURL)
 	
-	var filtered = [Post]() //For searchbar
-	var posts = [Post]() //Load into this when fetching posts or retrieving offline data
-	var selectedArray: [Post]?
+	// Post arrays
+	var pinned = [Post]() 		//For pinned posts
+	var posts = [Post]() 		//Load into this when fetching posts or retrieving offline data
+	var filtered = [[Post]]() 	//For searchbar
+	var selectedArray: [Post]?	//Selected array for display in viewcontroller
 	
+	// Searchbar initialisation
 	var searchText = ""
 	
+	// Information Passers
 	var titleData = String()
 	var contentData = String()
 	
-	let ud = UserDefaults.standard
-	
 	//Objects
-	@IBOutlet weak var FeedTableView: UITableView!
-	var searchController : UISearchController!
-	var refreshController : UIRefreshControl!
+	@IBOutlet weak var FeedTableView: UITableView! // Main tableview
+	var searchController : UISearchController! // Navigation embedded searchbar
+	var refreshController : UIRefreshControl! // Manual data refresher
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -73,6 +62,9 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		self.searchController.dimsBackgroundDuringPresentation = true
 		self.navigationItem.titleView = searchController.searchBar
 		self.definesPresentationContext = true
+		
+		//Load pinned posts
+		pinned = loadPinned()
 		
 		//Fetch feed on startup (if possible)
 		fetchFromFeed()
@@ -112,8 +104,11 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 			parser?.parseAsync { [weak self] (result) in
 				self?.feed = result.atomFeed
 				
-				//TBD: Check for new posts and edit notifications
-				self?.checkFeed(from: (self?.feed?.entries)!)
+				//Get new posts
+				self?.posts = (self?.getPosts())!
+				
+				//Save to UserDefaults
+				self?.savePosts()
 				
 				// Then back to the Main thread to update the UI.
 				DispatchQueue.main.async {
@@ -123,55 +118,86 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 			}
 		} else {
 			//Notify the user - No connection!
-			let alert = UIAlertController.init(title: "Error", message: "No connection!", preferredStyle: UIAlertControllerStyle.alert)
-			alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.cancel, handler: nil))
+			let alert = UIAlertController.init(
+				title: "Error",
+				message: "No connection!",
+				preferredStyle: UIAlertControllerStyle.alert)
+			alert.addAction(UIAlertAction(
+				title: "OK",
+				style: UIAlertActionStyle.cancel,
+				handler: nil))
 			self.present(alert, animated: true, completion: nil)
 			
 			//Load saved offline posts (If possible)
-			let data = ud.object(forKey: "posts") as! Data
-			let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
-			posts = decodedPosts
+			posts = loadPosts()
 		}
 	}
 	
-	//New Posts Handler
-	func checkFeed(from: [AtomFeedEntry]) {
-		//Get current Posts
-		let decoded = ud.object(forKey: "posts") as! Data
-		let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: decoded) as! [Post]
+	//Offline Data Handler
+	func loadPosts() -> [Post] {
+		let data = UserDefaults.standard.object(forKey: "posts") as! Data
+		let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+		return decodedPosts
+	}
+	
+	//Pin Data Handler
+	func loadPinned() -> [Post] {
+		let data = UserDefaults.standard.object(forKey: "pinnedposts") as! Data
+		let pinnedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+		return pinnedPosts
+	}
+	
+	//Standard Post Fetch Handler
+	func getPosts () -> [Post] {
 		
-		//Get new Posts
-		let newPosts = convertFromEntries(feed: (feed?.entries)!)
+		// Load posts from website
+		let posts = feed?.entries
+		var newData = [Post]()
 		
-		//Carry over read indicators
-		for newEntry in newPosts {
-			for oldEntry in decodedPosts {
-				if newEntry.isEquals(compareTo: oldEntry) {
-					newPosts[newPosts.index(of: newEntry)!].read = decodedPosts[decodedPosts.index(of: oldEntry)!].read
+		for entry in posts! {
+			// initialise as unread
+			newData.append(Post(
+				title: entry.title!,
+				content: (entry.content?.value)!,
+				published: entry.published!,
+				read: false))
+		}
+		
+		// Get pinned posts
+		let pinnedData = loadPinned()
+		
+		// Get old posts
+		let oldData = loadPosts()
+		
+		//Check against pinned posts to avoid redundancy
+		for newEntry in newData {
+			for pinnedEntry in pinnedData {
+				if newEntry.isEquals(compareTo: pinnedEntry) {
+					newData.remove(at: newData.index(of: newEntry)!)
 				}
 			}
 		}
 		
-		//Write to User Defaults to store posts [25 post limit bc of Blogger]
-		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: newPosts)
-		ud.set(encodedData, forKey: "posts")
-
-		//Push to posts array
-		self.posts = newPosts
+		//Check against old posts to transfer read notifications
+		for newEntry in newData {
+			for oldEntry in oldData {
+				if newEntry.isEquals(compareTo: oldEntry) {
+					newData[newData.index(of: newEntry)!].read = oldData[oldData.index(of: oldEntry)!].read
+				}
+			}
+		}
+		
+		//return posts
+		return newData
 	}
 	
-	//Conversion from AtomFeedEntry -> Post
-	func convertFromEntries(feed: [AtomFeedEntry]) -> [Post] {
-		var posts = [Post]()
-		for entry in feed {
-			posts.append(Post.init(
-				title: entry.title!,
-				content: (entry.content?.value)!,
-				published: entry.published!,
-				read: false)
-			)
-		}
-		return posts
+	//Archive Handler - Saves current volatile memory by useing NSKeyedArchiver
+	func savePosts() {
+		let encodedPinnedData: Data = NSKeyedArchiver.archivedData(withRootObject: pinned)
+		UserDefaults.standard.set(encodedPinnedData, forKey: "pinnedposts")
+		
+		let encodedPostData: Data = NSKeyedArchiver.archivedData(withRootObject: posts)
+		UserDefaults.standard.set(encodedPostData, forKey: "posts")
 	}
 	
 	//Pull from Feed
@@ -185,19 +211,32 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	
 	//Search Bar Handlers
 	func updateSearchResults(for searchController: UISearchController) {
-		//Filter Results
+		//Send searchbar text to Filter Handler
 		filter(forSearchText: searchController.searchBar.text!)
 	}
 	
+	//Filter Handler
 	func filter(forSearchText searchText: String) {
-		filtered = posts.filter {$0.title.contains(searchText)}
+		
+		var filteredPosts = [[Post]]()
+		if pinned.count != 0 {
+			//Filter for pinned posts
+			filteredPosts.append(pinned.filter {$0.title.contains(searchText)})
+		}
+		//Filter for standard posts
+		filteredPosts.append(posts.filter {$0.title.contains(searchText)})
+		
+		//Push to filtered
+		filtered = filteredPosts
 		FeedTableView.reloadData()
 	}
 	
+	//Prevent searchBar from clearing self
 	func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
 		searchController.searchBar.text = searchText
 	}
 	
+	//Search Bar Text Handler
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		self.searchText = searchText
 	}
@@ -208,44 +247,86 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		// Dispose of any resources that can be recreated.
 	}
 	
-	//Table View Handlers
+	//Tableview Section Handler
 	func numberOfSections(in tableView: UITableView) -> Int {
-		return 1
+		if pinned.count == 0 {
+			//No pins
+			return 1
+		} //else
+		return 2
+		
 	}
 	
+	//Tableview Header Handler
+	func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+		if section == 0 {
+			if pinned.count == 0 {
+				//No pinned posts
+				return "Posts"
+			}
+			//Has pinned posts
+			return "Pinned"
+		}
+		//Regular posts
+		return "Posts"
+	}
+	
+	//Tableview Row Handler
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		
+		//Create main array
+		var allPosts: [[Post]]
+		
+		//Check for prescence of pins
+		if pinned.count == 0 {
+			allPosts = [posts]
+		} else {
+			allPosts = [pinned,posts]
+		}
+		
 		//Switch between arrays
 		if searchController.isActive || searchController.searchBar.text != "" {
-			selectedArray = filtered
-		} else {
-			selectedArray = posts
+			return filtered[section].count
 		}
-		return selectedArray?.count ?? 0
+		return allPosts[section].count
 	}
 	
+	//Tableview Cell Handler
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		//Get cell
 		let cell = tableView.dequeueReusableCell(withIdentifier: "postcell", for: indexPath) as! FeedTableViewCell
 		
+		//Create main array
+		var allPosts: [[Post]]
+		
+		//Check for prescence of pins
+		if pinned.count == 0 {
+			allPosts = [posts]
+		} else {
+			allPosts = [pinned,posts]
+		}
+		
+		//Data init
+		var postData: Post
+		
 		//Switch between arrays
 		if searchController.isActive || searchController.searchBar.text != "" {
-			selectedArray = filtered
+			postData = filtered[indexPath.section][indexPath.row]
 		} else {
-			selectedArray = posts
+			postData = allPosts[indexPath.section][indexPath.row]
 		}
 		
 		//Configure the cell...
 		//Remove HTML tags while in main vc for the sake of cleanliness
-		let data = selectedArray?[indexPath.row].content
-		let str = data?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil).replacingOccurrences(of: "&nbsp;", with: " ")
+		let str = postData.content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil).replacingOccurrences(of: "&nbsp;", with: " ")
 		
 		//Set labels
-		cell.titleLabel.text = selectedArray?[indexPath.row].title
+		cell.titleLabel.text = postData.title
 		cell.descriptionLabel.text = str
-		cell.dateLabel.text = dateAgo(date: (selectedArray?[indexPath.row].published)!)
+		cell.dateLabel.text = dateAgo(date: (postData.published))
 		
 		//Check if read
-		if selectedArray?[indexPath.row].read == true {
+		if postData.read == true {
 			cell.readIndicator.alpha = 0
 		} else {
 			cell.readIndicator.alpha = 1
@@ -254,33 +335,195 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		return cell
 	}
 	
+	//Tableview Selection Handler
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		if searchController.isActive || searchController.searchBar.text != "" {
-			selectedArray = filtered
+		
+		//Create main array
+		var allPosts: [[Post]]
+		
+		//Check for prescence of pins
+		if pinned.count == 0 {
+			allPosts = [posts]
 		} else {
-			selectedArray = posts
+			allPosts = [pinned,posts]
 		}
-		titleData = (selectedArray?[indexPath.row].title)!
-		contentData = (selectedArray?[indexPath.row].content)!
+		
+		if searchController.isActive || searchController.searchBar.text != "" {
+			titleData = (filtered[indexPath.section][indexPath.row].title)
+			contentData = (filtered[indexPath.section][indexPath.row].content)
+		} else {
+			titleData = (allPosts[indexPath.section][indexPath.row].title)
+			contentData = (allPosts[indexPath.section][indexPath.row].content)
+		}
+		
 		
 		//Record as read
-		//Get current Posts
-		let data = ud.object(forKey: "posts") as! Data
-		var decodedData = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+		allPosts[indexPath.section].filter {$0.title.contains(titleData)}.first?.read = true
 		
-		//Record as read
-		let match = decodedData.first{$0.title == titleData}
-		decodedData[decodedData.index(of: match!)!].read = true
+		//Save to local volatile memory
+		if pinned.count != 0 {
+			pinned = allPosts.first!
+		}
+		posts = allPosts.last!
 		
 		//Push back to User Defaults
-		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: decodedData)
-		ud.set(encodedData, forKey: "posts")
+		savePosts()
 		
-		//refresh table view
-		posts = decodedData
+		//Refresh tableview
 		FeedTableView.reloadData()
 		
+		//Go to Post View
 		performSegue(withIdentifier: "viewPost", sender: nil)
+	}
+	
+	//Swipe Handlers for Tableview
+	func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		let swipeConfig = UISwipeActionsConfiguration(actions: [toggleRead(forRowAtIndexPath: indexPath)])
+		return swipeConfig
+	}
+	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		let swipeConfig = UISwipeActionsConfiguration(actions: [pinPost(forRowAtIndexPath: indexPath)])
+		return swipeConfig
+	}
+	
+	//Swipe Function Handlers
+	//Mark as Read Handlers
+	func toggleRead(forRowAtIndexPath indexPath: IndexPath) -> UIContextualAction {
+		//Initialisations
+		
+		//Create main array
+		var allPosts: [[Post]]
+		
+		//Check for prescence of pins
+		if pinned.count == 0 {
+			allPosts = [posts]
+		} else {
+			allPosts = [pinned,posts]
+		}
+		
+		//Edit title according to context
+		var title = String()
+		
+		if allPosts[indexPath.section][indexPath.row].read == false {
+			title = "Mark as Read"
+		} else {
+			title = "Mark as Unread"
+		}
+		
+		//Action Builder
+		let action = UIContextualAction(style: .normal, title: title)
+		{ (contextAction: UIContextualAction, sourceView: UIView, completionHandler: (Bool) -> Void) in
+			
+			//Toggle read notif according to context
+			allPosts[indexPath.section][indexPath.row].read = !allPosts[indexPath.section][indexPath.row].read
+			
+			//Push to local volatile memory
+			if self.pinned.count != 0 {
+				 self.pinned = allPosts.first!
+			}
+			 self.posts = allPosts.last!
+			
+			//Push back to User Defaults
+			self.savePosts()
+			
+			//Reload data
+			self.FeedTableView.reloadRows(at: [indexPath], with: .none)
+			
+			//Complete
+			completionHandler(true)
+		}
+		action.backgroundColor = allPosts[indexPath.section][indexPath.row].read ? UIColor.gray : UIColor.darkGray
+		return action
+	}
+	func pinPost(forRowAtIndexPath indexPath: IndexPath) -> UIContextualAction {
+		//Initialisations
+		
+		//Create main array
+		var allPosts: [[Post]]
+		
+		//Check for prescence of pins
+		if pinned.count == 0 {
+			allPosts = [posts]
+		} else {
+			allPosts = [pinned,posts]
+		}
+		
+		//Get post object
+		let post = allPosts[indexPath.section][indexPath.row]
+		
+		//Edit title according to context
+		var title = String()
+		
+		//If is in pinnned
+		if pinned.contains(post) {
+			//Unpin post
+			title = "Unpin"
+		} else {
+			//Pin post
+			title = "Pin"
+		}
+		
+		//Action Builder
+		let action = UIContextualAction(style: .normal, title: title)
+		{ (contextAction: UIContextualAction, sourceView: UIView, completionHandler: (Bool) -> Void) in
+			
+			//Toggle pin based on context
+			if title == "Unpin" {
+				self.posts = self.insertPost(withPost: post, inArray: self.posts)
+				self.pinned.remove(at: self.pinned.index(of: post)!)
+			} else {
+				self.pinned = self.insertPost(withPost: post, inArray: self.pinned)
+				self.posts.remove(at: self.posts.index(of: post)!)
+			}
+			
+			//Push modifications to User Defaults
+			self.savePosts()
+			
+			//reload Tableview
+			self.FeedTableView.reloadData()
+			
+			//Complete
+			completionHandler(true)
+			
+		}
+		action.backgroundColor = UIColor.blue
+		return action
+	}
+	
+	//Post insert Handler
+	func insertPost(withPost post: Post, inArray array: [Post]) -> [Post]{
+		
+		//Get array
+		var returnableArray = array
+		
+		//Check if there are enough elements to arrange
+		if returnableArray.count == 0 {
+			
+			//Not enough elements, just append
+			returnableArray.append(post)
+			return returnableArray
+			
+		}
+			
+		//Check if post is already the earliest in array.
+		if (returnableArray.last?.published)! > post.published {
+			
+			//Earliest, just append
+			returnableArray.append(post)
+			return returnableArray
+		}
+		
+		//Find first occurence where entry in array is earlier than post and insert
+		for entry in array {
+			if entry.published < post.published {
+				returnableArray.insert(post, at: returnableArray.index(of: entry)!)
+				//Exit at first occurence
+				break
+			}
+		}
+		
+		//Return result
+		return returnableArray
 	}
 	
 	//Date Handler

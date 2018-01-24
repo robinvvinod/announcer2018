@@ -69,8 +69,8 @@
 		1D8CD5041FA87E600013FBCD /* recently */ = {
 			isa = PBXGroup;
 			children = (
-				1D8CD5051FA87E600013FBCD /* AppDelegate.swift */,
 				1D6FACD42011766F00BD27DF /* Network Fetch.swift */,
+				1D8CD5051FA87E600013FBCD /* AppDelegate.swift */,
 				1D8CD5071FA87E600013FBCD /* ViewController.swift */,
 				1DC26D2A1FA9AE3A00200153 /* PostViewController.swift */,
 				1D8CD5191FA8C0340013FBCD /* FeedTableViewCell.swift */,

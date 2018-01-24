@@ -25,7 +25,7 @@ class PostViewController: UIViewController {
 		
 		titleLabel.title = titleText
 		let attrText = contentText.html2AttributedString
-		attrText?.addAttribute(.font, value: UIFont.init(name: "Avenir Next", size: 14.0), range: NSRange.init(location: 0, length: (attrText?.length)!))
+		attrText?.addAttribute(.font, value: UIFont.init(name: "Avenir Next", size: 14.0)!, range: NSRange.init(location: 0, length: (attrText?.length)!))
 		contentView.attributedText = attrText
         // Do any additional setup after loading the view.
     }
