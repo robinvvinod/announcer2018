@@ -34,11 +34,21 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	var titleData = String()
 	var contentData = String()
 	
+	//Checkers
+	var allowsRefresh = Bool() //To prevent dismiss from failing
+	
 	//Objects
 	@IBOutlet weak var FeedTableView: UITableView! // Main tableview
 	var searchController : UISearchController! // Navigation embedded searchbar
-	var refreshController : UIRefreshControl! // Manual data refresher
-
+	@IBAction func refreshButton(_ sender: Any) {
+		refresh(sender: self)
+	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		//Allow refresh
+		allowsRefresh = true
+	}
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
@@ -47,21 +57,19 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		FeedTableView.delegate = self
 		FeedTableView.dataSource = self
 		
-		//RefreshController init
-		refreshController = UIRefreshControl()
-		refreshController.attributedTitle = NSAttributedString(string: "Pull to refresh")
-		refreshController.addTarget(self, action: #selector(refresh), for: UIControlEvents.valueChanged)
-		FeedTableView.addSubview(refreshController)
-		
 		//Search Bar init
 		self.searchController = UISearchController(searchResultsController:  nil)
 		self.searchController.searchResultsUpdater = self
 		self.searchController.delegate = self
 		self.searchController.searchBar.delegate = self
-		self.searchController.hidesNavigationBarDuringPresentation = false
 		self.searchController.dimsBackgroundDuringPresentation = true
-		self.navigationItem.titleView = searchController.searchBar
+		
+		//Allow searchbar to define presentation context (false by default)
 		self.definesPresentationContext = true
+		
+		//Large Navigation Item init
+		self.navigationController?.navigationBar.prefersLargeTitles = true
+		self.navigationItem.searchController = searchController
 		
 		//Load pinned posts
 		pinned = loadPinned()
@@ -155,6 +163,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		var newData = [Post]()
 		
 		for entry in posts! {
+			
 			// initialise as unread
 			newData.append(Post(
 				title: entry.title!,
@@ -202,11 +211,28 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	
 	//Pull from Feed
 	@objc func refresh(sender: AnyObject) {
-		fetchFromFeed()
-		let when = DispatchTime.now() + 3
-		DispatchQueue.main.asyncAfter(deadline: when) {
-			self.refreshController.endRefreshing()
+		
+		if allowsRefresh == true {
+			
+			//Init loading screens
+			let loadAlert = UIAlertController.init(title: nil, message: "Refreshing...", preferredStyle: .alert)
+			let loadIndicator = UIActivityIndicatorView.init(frame: CGRect.init(x: 10, y: 5, width: 50, height: 50))
+			loadIndicator.hidesWhenStopped = true
+			loadIndicator.activityIndicatorViewStyle = .gray
+			loadIndicator.startAnimating()
+			
+			//Present loading screen
+			loadAlert.view.addSubview(loadIndicator)
+			present(loadAlert, animated: true, completion: nil)
+			
+			//Fetch from feed
+			fetchFromFeed()
+			
+			//End loading
+			dismiss(animated: true, completion: nil)
+			
 		}
+		
 	}
 	
 	//Search Bar Handlers
@@ -262,7 +288,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		if section == 0 {
 			//Make up for footer in first section
 			return 33
-		}
+			}
 		return 25
 	}
 	
@@ -351,6 +377,9 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	
 	//Tableview Selection Handler
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		
+		//Prevent refresh from being triggered
+		allowsRefresh = false
 		
 		//Create main array
 		var allPosts: [[Post]]

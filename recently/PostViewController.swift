@@ -17,24 +17,63 @@ class PostViewController: UIViewController {
 	//Objects
 	@IBOutlet weak var titleLabel: UINavigationItem!
 	@IBOutlet weak var contentView: UITextView!
+	@IBAction func shareButton(_ sender: Any) {
+		
+		//Get text of post
+		let shareText = contentText.htmlToString
+		
+		//Create Activity View Controller (Share screen)
+		let shareViewController = UIActivityViewController.init(activityItems: [shareText], applicationActivities: nil)
+		
+		//Remove unneeded actions
+		shareViewController.excludedActivityTypes = [.airDrop, .addToReadingList]
+		
+		//Present share controller
+		shareViewController.popoverPresentationController?.sourceView = self.view
+		self.present(shareViewController, animated: true, completion: nil)
+	}
 	
     override func viewDidLoad() {
         super.viewDidLoad()
 		
-		//Edit content's images (if there's any)
-		
+		// Do any additional setup after loading the view.
 		titleLabel.title = titleText
-		let attrText = contentText.html2AttributedString
+		let attrText = contentText.htmlToAttributedString
+		
+		
+		//Check if some content was missed out
+		if contentText.contains("<iframe") {
+			//Format and remove all iframes while converting them into attachment links
+			var entireText = contentText
+			attrText?.append(NSAttributedString(string: "\n\n"))
+			while entireText.contains("<iframe") {
+				
+				//Find source of embedded content
+				let upperBound = contentText.range(of: "<iframe")
+				let lowerBound = contentText.range(of: "></iframe>")?.lowerBound
+				let nextBound = contentText.range(of: "src=")?.upperBound
+				let iframeText = contentText[(upperBound?.upperBound)!..<lowerBound!]
+				let sourceLink = iframeText[nextBound!...].replacingOccurrences(of: "\"", with: "")
+				
+				//Append embedded content link as attachment links
+				attrText?.append(NSAttributedString(string: "[Attachment]: " + sourceLink))
+				
+				//Remove current iframe and move onto next if possible
+				entireText.removeSubrange(upperBound!)
+			}
+		}
+		
+		//Format font to Avenir Next
 		attrText?.addAttribute(.font, value: UIFont.init(name: "Avenir Next", size: 14.0)!, range: NSRange.init(location: 0, length: (attrText?.length)!))
+		
+		//Pass to UI
 		contentView.attributedText = attrText
-        // Do any additional setup after loading the view.
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
 
     /*
     // MARK: - Navigation
@@ -51,7 +90,7 @@ class PostViewController: UIViewController {
 //Extension to read HTML text
 
 extension String {
-	var html2AttributedString: NSMutableAttributedString? {
+	var htmlToAttributedString: NSMutableAttributedString? {
 		do {
 			return try NSMutableAttributedString(data: Data(utf8),
 			                              options: [.documentType: NSAttributedString.DocumentType.html,
@@ -62,7 +101,7 @@ extension String {
 			return nil
 		}
 	}
-	var html2String: String {
-		return html2AttributedString?.string ?? ""
+	var htmlToString: String {
+		return htmlToAttributedString?.string ?? ""
 	}
 }
