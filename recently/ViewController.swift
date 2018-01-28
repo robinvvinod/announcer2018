@@ -39,6 +39,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 	
 	//Objects
 	@IBOutlet weak var FeedTableView: UITableView! // Main tableview
+	var refreshController : UIRefreshControl! // Refresh controller
 	var searchController : UISearchController! // Navigation embedded searchbar
 	@IBAction func refreshButton(_ sender: Any) {
 		refresh(sender: self)
@@ -56,6 +57,10 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
 		//TableViewController init
 		FeedTableView.delegate = self
 		FeedTableView.dataSource = self
+		
+		//Refresh Controller init
+		self.refreshController = UIRefreshControl()
+		self.FeedTableView.refreshControl = refreshController
 		
 		//Search Bar init
 		self.searchController = UISearchController(searchResultsController:  nil)
