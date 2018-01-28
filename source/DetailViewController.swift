@@ -1,6 +1,6 @@
 //
 //  DetailViewController.swift
-//  Announce
+//  source
 //
 //  Created by Orbit on 28/1/18.
 //  Copyright © 2018 Orbit. All rights reserved.
