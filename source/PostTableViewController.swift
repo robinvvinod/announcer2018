@@ -384,7 +384,7 @@ class MainTableViewController: UITableViewController, UISearchControllerDelegate
 		
 		
 		//Record as read
-		allPosts[indexPath.section].filter {$0.title.contains(titleData)}.first?.read = true
+		allPosts[indexPath.section].filter {$0.content.contains(contentData)}.first?.read = true
 		
 		//Save to local volatile memory
 		if pinned.count != 0 {
@@ -464,7 +464,16 @@ class MainTableViewController: UITableViewController, UISearchControllerDelegate
 			completionHandler(true)
 			
 		}
-		action.backgroundColor = UIColor.blue
+		
+		//Contextual Colors
+		if pinned.contains(post) {
+			// Is pinned, therefore action is unpinning
+			action.backgroundColor = UIColor.init(red: 255/255, green: 59/255, blue: 48/255, alpha: 1)
+		} else {
+			// Is not pinned, therefore action is pinning
+			action.backgroundColor = UIColor.init(red: 0/255, green: 122/255, blue: 255/255, alpha: 1)
+		}
+		
 		return action
 	}
 	
