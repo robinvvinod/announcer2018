@@ -6,18 +6,23 @@
 	<dict>
 		<key>source.xcscheme</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
-		<key>watchSource (Notification).xcscheme</key>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>1D730808201FFA7B001F7DA6</key>
 		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
+			<key>primary</key>
+			<true/>
 		</dict>
-		<key>watchSource.xcscheme</key>
+		<key>1DDFF323201E23AE00A64D72</key>
 		<dict>
-			<key>orderHint</key>
-			<integer>3</integer>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
