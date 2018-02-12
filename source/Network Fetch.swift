@@ -22,69 +22,78 @@ let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
 
 
 // Background Fetch Handler
-func fetchFromBlog() -> [UNMutableNotificationContent] {
-	var feed: AtomFeed?
+func fetchFromBlog() -> [UNMutableNotificationContent]? {
+	
+	//FeedKit parser init
 	let parser = FeedParser(URL: feedURL)
-	if !connectedToNetwork() {
-		
-		//Return no new notifications
-		return []
-		
-	}
+	let data = parser?.parse()
 	
-	//Is connected - fetch Atom Feed
-	let result = parser?.parse()
-	feed = result?.atomFeed
+	//Get old posts
+	let pinnedPosts = loadPinned()
+	let oldPosts = loadPosts()
 	
-	//Get current Posts
-	let decoded = UserDefaults.standard.object(forKey: "posts") as! Data
-	let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: decoded) as! [Post]
+	//Get new posts
+	var newPosts = convertFromEntries(feed: (data?.atomFeed?.entries)!)
+	var changedPosts = newPosts
 	
-	//Get new Posts
-	let newPosts = convertFromEntries(feed: (feed?.entries)!)
-	
-	//Get updated posts
-	var changedPosts = [Post]()
-	for entry in newPosts {
-		if !decodedPosts.contains(entry) {
-			changedPosts.append(entry)
-		}
-	}
-	
-	//if no updated posts, return no new notifications
-	if changedPosts.count == 0 {
-		
-		//Carry over read indicators
-		for newEntry in newPosts {
-			for oldEntry in decodedPosts {
-				if newEntry == oldEntry {
-					newPosts[newPosts.index(of: newEntry)!].read = true
-				}
+	//Check for changes
+	for newEntry in changedPosts {
+		for oldEntry in oldPosts {
+			if newEntry.isEquals(compareTo: oldEntry) {
+				changedPosts.remove(at: changedPosts.index(of: newEntry)!)
 			}
 		}
-		
-		//Write to User Defaults to store posts [25 post limit bc of Blogger]
-		let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: newPosts)
-		UserDefaults.standard.set(encodedData, forKey: "posts")
-		
-		//Process new Posts into UNNotifications
-		var notifications = [UNMutableNotificationContent]()
-		
-		for post in changedPosts {
-			let content = UNMutableNotificationContent()
-			
-			content.title = NSString.localizedUserNotificationString(forKey:
-				post.title, arguments: nil)
-			content.body = NSString.localizedUserNotificationString(forKey:
-				post.content, arguments: nil)
-			content.sound = UNNotificationSound.default()
-			
-			notifications.append(content)
-		}
-		//return list of notifications
-		return notifications
 	}
-	return []
+	
+	//Check for redundant posts in pinned
+	for changedEntry in changedPosts {
+		for pinnedEntry in pinnedPosts {
+			if changedEntry.isEquals(compareTo: pinnedEntry) {
+				changedPosts.remove(at: changedPosts.index(of: changedEntry)!)
+			}
+		}
+	}
+	
+	//If there's nothing, return immediately
+	if changedPosts.count == 0 {
+		return []
+	}
+	
+	//Else: update posts and return notifications
+	
+	//Update posts ¬
+	//Check against old posts to transfer read notifications
+	for newEntry in newPosts {
+		for oldEntry in oldPosts {
+			if newEntry.isEquals(compareTo: oldEntry) {
+				newPosts[newPosts.index(of: newEntry)!].read = oldPosts[oldPosts.index(of: oldEntry)!].read
+			}
+		}
+	}
+	
+	//Update posts archive
+	let encodedPostData: Data = NSKeyedArchiver.archivedData(withRootObject: newPosts)
+	UserDefaults.standard.set(encodedPostData, forKey: "posts")
+	
+	//Return notifications ¬
+	//Process new Posts into UNNotifications
+	var notifications = [UNMutableNotificationContent]()
+	
+	for post in changedPosts {
+		let content = UNMutableNotificationContent()
+		
+		content.title = NSString.localizedUserNotificationString(forKey:
+			post.title, arguments: nil)
+		content.body = NSString.localizedUserNotificationString(forKey:
+			post.content, arguments: nil)
+		content.sound = UNNotificationSound.default()
+		
+		notifications.append(content)
+	}
+	
+	// Return list of notifications
+	return notifications
+	
 }
 
 //MARK: - Helpers
@@ -119,8 +128,25 @@ func connectedToNetwork() -> Bool {
 func convertFromEntries(feed: [AtomFeedEntry]) -> [Post] {
 	var posts = [Post]()
 	for entry in feed {
-		posts.append(Post.init(title: entry.title ?? "[No Title]", content: (entry.content?.value)!, published: entry.published!, read: false))
+		posts.append(Post.init(title: entry.title ?? "[No Title]",
+							   content: (entry.content?.value)!,
+							   published: entry.published!,
+							   read: false)
+		)
 	}
 	return posts
 }
 
+//Offline Data Handler
+func loadPosts() -> [Post] {
+	let data = UserDefaults.standard.object(forKey: "posts") as! Data
+	let decodedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+	return decodedPosts
+}
+
+//Pin Data Handler
+func loadPinned() -> [Post] {
+	let data = UserDefaults.standard.object(forKey: "pinnedposts") as! Data
+	let pinnedPosts = NSKeyedUnarchiver.unarchiveObject(with: data) as! [Post]
+	return pinnedPosts
+}

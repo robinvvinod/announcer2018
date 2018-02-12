@@ -26,9 +26,9 @@ class Post: NSObject, NSCoding {
 	}
 	
 	//Comparisons
-	func isEquals(compareTo: Post) -> Bool {
+	func isEquals(compareTo post: Post) -> Bool {
 		return
-			self.title == compareTo.title && self.published == compareTo.published
+			self.title == post.title && self.published == post.published
 	}
 	
 	//Encode and decode [For User Defaults Storage]

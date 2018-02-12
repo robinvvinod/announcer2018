@@ -70,6 +70,13 @@ class PostViewController: UIViewController {
 		contentView.attributedText = attrText
 	}
 	
+	override func viewDidLayoutSubviews() {
+		
+		//Resets scroll view on load
+		contentView.setContentOffset(.zero, animated: false)
+		
+	}
+	
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.

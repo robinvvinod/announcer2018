@@ -6,9 +6,6 @@
 //  Copyright © 2018 Orbit. All rights reserved.
 //
 
-//Background Fetch Interval
-let fetchInterval = 300.0
-
 import UIKit
 import FeedKit
 import UserNotifications
@@ -29,8 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// UserDefaults registration for key "pins" for retaining data
 		ud.register(defaults: ["pinnedposts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		
-		// Fetch data every five minutes.
-		UIApplication.shared.setMinimumBackgroundFetchInterval(fetchInterval)
+		// Fetch data as much as possible.
+		UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
 		
 		//Ask for notification authorization
 		let center = UNUserNotificationCenter.current()
@@ -47,30 +44,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		
-		let notifications = fetchFromBlog() // Defined in Network Fetch - DO NOT CONFUSE WITH fetchFromFeed()!
-		
-		if notifications.count == 0 {
+		// Limit background fetches
+		if application.applicationState != .active {
 			
-			//No Data
-			completionHandler(.noData)
-			
-		} else if notifications.count > 0 {
-			
-			//New Data
-			for notification in notifications {
-				let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-				let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
-				let center = UNUserNotificationCenter.current()
-				center.add(request, withCompletionHandler: nil)
+			// fetchFromBlog defined in Network Fetch - DO NOT CONFUSE WITH fetchFromFeed()!
+			guard let notifications = fetchFromBlog() else {
+				
+				//Failed
+				completionHandler(.failed)
+				return
+				
 			}
-			completionHandler(.newData)
 			
-		} else {
-			
-			//Fail
-			completionHandler(.failed)
+			if notifications.count > 0 {
+				
+				//New Data
+				for notification in notifications {
+					let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+					let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
+					let center = UNUserNotificationCenter.current()
+					center.add(request, withCompletionHandler: nil)
+				}
+				completionHandler(.newData)
+				
+			} else {
+				
+				//No New Data
+				completionHandler(.noData)
+			}
 			
 		}
+		
+		//Default
+		completionHandler(.noData)
 	}
 	
 	func applicationWillResignActive(_ application: UIApplication) {
