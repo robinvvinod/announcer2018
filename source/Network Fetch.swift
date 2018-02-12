@@ -13,8 +13,15 @@ import UserNotifications
 import FeedKit
 
 //RSS or Atom Feed URL: Change this link to change RSS feed location
+
+// STUDENT BLOG ¬
 let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
 
+// TEST BLOG ¬
+//let feedURL = URL(string: "https://announcer-test-notif-source.blogspot.com/feeds/posts/default")!
+
+
+// Background Fetch Handler
 func fetchFromBlog() -> [UNMutableNotificationContent] {
 	var feed: AtomFeed?
 	let parser = FeedParser(URL: feedURL)
@@ -112,7 +119,7 @@ func connectedToNetwork() -> Bool {
 func convertFromEntries(feed: [AtomFeedEntry]) -> [Post] {
 	var posts = [Post]()
 	for entry in feed {
-		posts.append(Post.init(title: entry.title!, content: (entry.content?.value)!, published: entry.published!, read: false))
+		posts.append(Post.init(title: entry.title ?? "[No Title]", content: (entry.content?.value)!, published: entry.published!, read: false))
 	}
 	return posts
 }

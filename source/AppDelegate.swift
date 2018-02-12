@@ -6,6 +6,9 @@
 //  Copyright © 2018 Orbit. All rights reserved.
 //
 
+//Background Fetch Interval
+let fetchInterval = 300.0
+
 import UIKit
 import FeedKit
 import UserNotifications
@@ -14,7 +17,6 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	var window: UIWindow?
-	
 	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
@@ -28,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ud.register(defaults: ["pinnedposts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		
 		// Fetch data every five minutes.
-		UIApplication.shared.setMinimumBackgroundFetchInterval(1200)
+		UIApplication.shared.setMinimumBackgroundFetchInterval(fetchInterval)
 		
 		//Ask for notification authorization
 		let center = UNUserNotificationCenter.current()
@@ -44,13 +46,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		let notifications = fetchFromBlog()
 		
-		for notification in notifications {
-			let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-			let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
-			let center = UNUserNotificationCenter.current()
-			center.add(request, withCompletionHandler: nil)
+		let notifications = fetchFromBlog() // Defined in Network Fetch - DO NOT CONFUSE WITH fetchFromFeed()!
+		
+		if notifications.count == 0 {
+			
+			//No Data
+			completionHandler(.noData)
+			
+		} else if notifications.count > 0 {
+			
+			//New Data
+			for notification in notifications {
+				let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+				let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
+				let center = UNUserNotificationCenter.current()
+				center.add(request, withCompletionHandler: nil)
+			}
+			completionHandler(.newData)
+			
+		} else {
+			
+			//Fail
+			completionHandler(.failed)
+			
 		}
 	}
 	
