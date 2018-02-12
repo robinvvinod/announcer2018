@@ -464,7 +464,11 @@ class MainTableViewController: UITableViewController, UISearchControllerDelegate
 			completionHandler(true)
 			
 		}
-		action.backgroundColor = UIColor.blue
+		if title == "Unpin" {
+			action.backgroundColor = UIColor.init(red: 255/255, green: 59/255, blue: 48/255, alpha: 1)
+		} else {
+			action.backgroundColor = UIColor.init(red: 255/255, green: 204/255, blue: 0, alpha: 1)
+		}
 		return action
 	}
 	
