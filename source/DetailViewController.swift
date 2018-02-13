@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PostViewController: UIViewController {
+class DetailViewController: UIViewController {
 	
 	//Variables
 	var titleText = String()
@@ -18,6 +18,11 @@ class PostViewController: UIViewController {
 	@IBOutlet weak var titleLabel: UINavigationItem!
 	@IBOutlet weak var contentView: UITextView!
 	@IBAction func shareButton(_ sender: Any) {
+		share()
+	}
+	
+	//Share Handler
+	func share() {
 		
 		//Get text of post
 		let shareText = contentText.htmlToString

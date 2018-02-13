@@ -13,7 +13,7 @@ import FeedKit
 
 //Edit the URL in Network Fetch to change RSS Feed location
 
-class MainTableViewController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating, UISearchBarDelegate {
+class PostTableViewController: UITableViewController, UISearchControllerDelegate, UISearchResultsUpdating, UISearchBarDelegate {
 	
 	//MARK: - Variables
 	
@@ -344,7 +344,14 @@ class MainTableViewController: UITableViewController, UISearchControllerDelegate
 		
 		//Configure the cell...
 		//Remove HTML tags while in main vc for the sake of cleanliness
-		let str = postData.content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil).replacingOccurrences(of: "&nbsp;", with: " ")
+		let bodyContent = postData.content
+		var str = String()
+		
+		if bodyContent.contains("#VML") {
+			str = bodyContent.htmlToString
+		} else {
+			str = postData.content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil).replacingOccurrences(of: "&nbsp;", with: " ")
+		}
 		
 		//Set labels
 		cell.titleLabel.text = postData.title
@@ -527,7 +534,7 @@ class MainTableViewController: UITableViewController, UISearchControllerDelegate
 	//Prepare for segue
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "viewPost" {
-			let vc = segue.destination as! PostViewController
+			let vc = segue.destination as! DetailViewController
 			vc.titleText = titleData
 			vc.contentText = contentData
 		}
