@@ -21,6 +21,15 @@ class DetailViewController: UIViewController {
 		share()
 	}
 	
+	//Standard Zoom
+	@IBAction func doubleTapped(_ sender: Any) {
+		if contentView.font?.pointSize == 14 {
+			contentView.font = UIFont(name: (contentView.font?.fontName)!, size: 18)
+		} else {
+			contentView.font = UIFont(name: (contentView.font?.fontName)!, size: 14)
+		}
+	}
+	
 	//Share Handler
 	func share() {
 		

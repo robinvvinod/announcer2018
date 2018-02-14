@@ -232,10 +232,10 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 		var filteredPosts = [[Post]]()
 		if pinned.count != 0 {
 			//Filter for pinned posts
-			filteredPosts.append(pinned.filter {$0.title.contains(searchText)})
+			filteredPosts.append(pinned.filter {$0.title.lowercased().contains(searchText.lowercased())})
 		}
 		//Filter for standard posts
-		filteredPosts.append(posts.filter {$0.title.contains(searchText)})
+		filteredPosts.append(posts.filter {$0.title.lowercased().contains(searchText.lowercased())})
 		
 		//Push to filtered
 		filtered = filteredPosts

@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ud.register(defaults: ["pinnedposts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		
 		// Fetch data as much as possible.
-		UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
+		UIApplication.shared.setMinimumBackgroundFetchInterval(300)
 		
 		//Ask for notification authorization
 		let center = UNUserNotificationCenter.current()
