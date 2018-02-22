@@ -85,7 +85,7 @@ func fetchFromBlog() -> [UNMutableNotificationContent]? {
 		content.title = NSString.localizedUserNotificationString(forKey:
 			post.title, arguments: nil)
 		content.body = NSString.localizedUserNotificationString(forKey:
-			post.content, arguments: nil)
+			post.content.htmlToString, arguments: nil)
 		content.sound = UNNotificationSound.default()
 		
 		notifications.append(content)

@@ -530,6 +530,13 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 		}
 		return ""
 	}
+
+	//Shake for info
+	override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+		if motion == .motionShake {
+			performSegue(withIdentifier: "shakeInFrustration", sender: self)
+		}
+	}
 	
 	//Prepare for segue
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
