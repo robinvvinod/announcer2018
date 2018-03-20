@@ -22,10 +22,10 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 	let parser = FeedParser(URL: feedURL)
 	
 	// Post arrays
-	var pinned = [Post]() 		//For pinned posts
+	var pinned = [Post]()
 	var posts = [Post]() 		//Load into this when fetching posts or retrieving offline data
-	var filtered = [[Post]]() 	//For searchbar
-	var selectedArray: [Post]?	//Selected array for display in viewcontroller
+	var filtered = [[Post]]()
+	var selectedArray: [Post]?
 	
 	// Searchbar initialisation
 	var searchText = ""
@@ -103,6 +103,7 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 	
 	//Fetch Handler
 	func fetchFromFeed() {
+		
 		if connectedToNetwork() {
 			//Is connected - fetch Atom Feed
 			parser?.parseAsync { [weak self] (result) in
@@ -166,6 +167,7 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 				content: (entry.content?.value)!,
 				published: entry.published!,
 				read: false))
+			
 		}
 		
 		// Get pinned posts
@@ -519,8 +521,10 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 	func dateAgo(date: Date) -> String{
 		let now = Date()
 		let timeInterval = Int(DateInterval(start: date, end: now).duration)
-		if timeInterval <= 86400 {
-			return "Today"
+		if timeInterval <= 3600 {
+			return "\(timeInterval/60) m"
+		} else if timeInterval < 86400 {
+			return "\(timeInterval/3600) h"
 		} else if timeInterval < 2678400 {
 			return "\(timeInterval/86400) d"
 		} else if timeInterval >= 2678400 {
@@ -529,13 +533,6 @@ class PostTableViewController: UITableViewController, UISearchControllerDelegate
 			return "\(timeInterval/31536000) y"
 		}
 		return ""
-	}
-
-	//Shake for info
-	override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
-		if motion == .motionShake {
-			performSegue(withIdentifier: "shakeInFrustration", sender: self)
-		}
 	}
 	
 	//Prepare for segue

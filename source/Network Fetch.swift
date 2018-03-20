@@ -15,10 +15,10 @@ import FeedKit
 //RSS or Atom Feed URL: Change this link to change RSS feed location
 
 // STUDENT BLOG ¬
-let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
+//let feedURL = URL(string: "http://studentsblog.sst.edu.sg/feeds/posts/default")!
 
 // TEST BLOG ¬
-//let feedURL = URL(string: "https://announcer-test-notif-source.blogspot.com/feeds/posts/default")!
+let feedURL = URL(string: "https://announcer-test-notif-source.blogspot.com/feeds/posts/default")!
 
 
 // Background Fetch Handler

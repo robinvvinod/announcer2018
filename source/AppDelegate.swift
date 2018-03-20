@@ -27,52 +27,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ud.register(defaults: ["pinnedposts" : NSKeyedArchiver.archivedData(withRootObject: [Post]())])
 		
 		// Fetch data as much as possible.
-		UIApplication.shared.setMinimumBackgroundFetchInterval(300)
+		UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
 		
 		//Ask for notification authorization
 		let center = UNUserNotificationCenter.current()
-		let options: UNAuthorizationOptions = [.alert, .sound]
-		center.requestAuthorization(options: options) {
-			(granted, error) in
-			if !granted {
-				print("Something went wrong")
-			}
+		center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+			//Change functions based on availability of notifications
 		}
 		
 		return true
 	}
 	
 	func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+			
+		// fetchFromBlog defined in Network Fetch - DO NOT CONFUSE WITH fetchFromFeed()!
+		guard let notifications = fetchFromBlog() else {
+			
+			//Failed
+			completionHandler(.failed)
+			return
+			
+		}
 		
-		// Limit background fetches
-		if application.applicationState != .active {
+		if notifications.count > 0 {
 			
-			// fetchFromBlog defined in Network Fetch - DO NOT CONFUSE WITH fetchFromFeed()!
-			guard let notifications = fetchFromBlog() else {
-				
-				//Failed
-				completionHandler(.failed)
-				return
-				
+			//New Data
+			for notification in notifications {
+				let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+				let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
+				let center = UNUserNotificationCenter.current()
+				center.add(request, withCompletionHandler: nil)
 			}
+			completionHandler(.newData)
 			
-			if notifications.count > 0 {
-				
-				//New Data
-				for notification in notifications {
-					let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-					let request = UNNotificationRequest(identifier: "NewPost", content: notification, trigger: trigger)
-					let center = UNUserNotificationCenter.current()
-					center.add(request, withCompletionHandler: nil)
-				}
-				completionHandler(.newData)
-				
-			} else {
-				
-				//No New Data
-				completionHandler(.noData)
-			}
+		} else {
 			
+			//No New Data
+			completionHandler(.noData)
 		}
 		
 		//Default

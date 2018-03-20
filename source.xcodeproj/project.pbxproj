@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D41C61D203E80E6002A8980 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D41C61C203E80E6002A8980 /* AboutViewController.swift */; };
 		1D54DF3D20305B0700909CE8 /* HTML Converter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D54DF3C20305B0700909CE8 /* HTML Converter.swift */; };
 		1DDFF328201E23AE00A64D72 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDFF327201E23AE00A64D72 /* AppDelegate.swift */; };
 		1DDFF32D201E23AE00A64D72 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1DDFF32B201E23AE00A64D72 /* Main.storyboard */; };
@@ -22,7 +21,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1D41C61C203E80E6002A8980 /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		1D54DF3C20305B0700909CE8 /* HTML Converter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTML Converter.swift"; sourceTree = "<group>"; };
 		1DDFF324201E23AE00A64D72 /* source.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = source.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DDFF327201E23AE00A64D72 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -78,7 +76,6 @@
 				1DDFF33D201E241E00A64D72 /* PostTableViewCell.swift */,
 				1DDFF33B201E241E00A64D72 /* PostTableViewController.swift */,
 				1DDFF339201E241E00A64D72 /* DetailViewController.swift */,
-				1D41C61C203E80E6002A8980 /* AboutViewController.swift */,
 				1DDFF33A201E241E00A64D72 /* Network Fetch.swift */,
 				1D54DF3C20305B0700909CE8 /* HTML Converter.swift */,
 				1DDFF32B201E23AE00A64D72 /* Main.storyboard */,
@@ -246,7 +243,6 @@
 				1D54DF3D20305B0700909CE8 /* HTML Converter.swift in Sources */,
 				1DDFF33E201E241E00A64D72 /* DetailViewController.swift in Sources */,
 				1DDFF341201E241E00A64D72 /* Post.swift in Sources */,
-				1D41C61D203E80E6002A8980 /* AboutViewController.swift in Sources */,
 				1DDFF342201E241E00A64D72 /* PostTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
